@@ -21,10 +21,18 @@
 void init_process_table();
 void schedule_user_process();
 void set_user_mode();
+void set_machine_mode();
 void set_jump_address(void *func);
 unsigned int get_mstatus();
 void set_mstatus(unsigned int mstatus);
-void* get_mepc();
+/* read Exception Program Counter register */
+static inline void* get_mepc(void)
+{
+	void* ret;
+	asm volatile ("csrr %0, mepc" : "=r"(ret));
+	return ret;
+}
+
 void kernel_timer_tick();
 void set_timer();
 void disable_interrupts();
@@ -36,5 +44,6 @@ void kprintp(void* p);
 
 extern void user_entry_point();
 extern void user_entry_point2();
+extern void poweroff();
 
 #endif // ifndef _KERNEL_H_

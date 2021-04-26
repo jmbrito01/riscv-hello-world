@@ -421,5 +421,7 @@ msg_call_printf:
 .section .rodata
 msg_m_hello:
         .string "Hello from M-mode!\n"
+msg_second_thread_hello:
+        .string "Hello from M-mode in a second thread!\n"
 msg_exception:
         .string "Exception occurred, mcause:%p mepc:%p mtval:%p (user payload at:%p, stack top:%p).\n"

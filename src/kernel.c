@@ -11,6 +11,7 @@ int curr_proc = 0;
 
 void kinit() {
     kprints("kinit\n");
+    kprints("Here we have kernel mode control in C\n");
     void *p = (void*)0xf10a; // this is a random hex to test out kprintp()
     kprintp(p);
     init_process_table();
@@ -22,15 +23,13 @@ void kinit() {
 // housekeeping as well as run the scheduler to pick the next user process to
 // run.
 void kernel_timer_tick() {
-    disable_interrupts();
-    kprints("K");
-    void* userland_pc = (void*)get_mepc();
-    if (userland_pc && curr_proc >= 0) {
-        proc_table[curr_proc].pc = userland_pc;
-    }
-    set_timer_after(ONE_SECOND);
-    schedule_user_process();
-    enable_interrupts();
+    set_machine_mode();
+    disable_interrupts(); // Stops all interrupts until this function executes
+
+    set_timer_after(ONE_SECOND); // Wait 1 second
+    schedule_user_process(); // Start user processes
+
+    enable_interrupts(); // Returns all interrupts that were disabled in the beginning
 }
 
 // 3.1.7 Privilege and Global Interrupt-Enable Stack in mstatus register
@@ -59,8 +58,8 @@ void schedule_user_process() {
     if (curr_proc > 1) {
         curr_proc = 0;
     }
-    set_jump_address(proc_table[curr_proc].pc);
-    set_user_mode();
+    set_jump_address(proc_table[curr_proc].pc); // Sets mepc to the userland function
+    // set_user_mode(); // Sets user mode permissions
 }
 
 void init_process_table() {
@@ -82,7 +81,16 @@ void set_user_mode() {
     unsigned int mstatus = get_mstatus();
     mstatus &= MODE_MASK;   // zero out mode bits 11:12
     mstatus |= MODE_U;      // set them to user mode
-    set_mstatus(mstatus);
+   set_mstatus(mstatus);
+}
+
+// Privilege levels are encoded in 2 bits: User = 0b00, Supervisor = 0b01,
+// Machine = 0b11 and stored in 11:12 bits of mstatus CSR (called mstatus.mpp)
+void set_machine_mode() {
+    unsigned int mstatus = get_mstatus();
+    mstatus &= MODE_MASK;   // zero out mode bits 11:12
+    mstatus |= MODE_M;      // set them to user mode
+   set_mstatus(mstatus);
 }
 
 unsigned int get_mstatus() {
@@ -102,14 +110,6 @@ void set_mstatus(unsigned int value) {
     );
 }
 
-void* get_mepc() {
-    register void* a0 asm ("a0");
-    asm volatile (
-        "csrr a0, mepc"
-        : "=r"(a0)   // output in a0
-    );
-    return a0;
-}
 
 void set_jump_address(void *func) {
     asm volatile (

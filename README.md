@@ -1,10 +1,11 @@
-Run a RISC-V code in QEMU.
-
-Bare metal RISC-V assembly in QEMU
+riscv-hello-world
 ==================================
 
-Run a bare metal RISC-V code in QEMU without any OS or C. Based on the source
-code from [here][riscv-hello-asm] and [here][riscv-hello-asm2].
+This repo is based on [riscv64-in-qemu](https://github.com/rtfb/riscv64-in-qemu).
+
+`riscv-hello-world` is a simple package intended to understand how a risc-v chip works under the hood. It creates a new bootable OS that listens to the Machine Interrupt Timer and execute code with machine privileges. It also creates two user-mode executions in loop.
+
+For nexts steps, we need to update `boot.s` to allow multi-core processors.
 
 This code is compiled with the [riscv-gnu-toolchain][riscv-gnu-toolchain] and
 can be run with the QEMU `sifive_u` and `sifive_e` machines. Both 32bit and
@@ -14,28 +15,8 @@ As of this writing, these are the latest versions of the software involved:
 * Qemu: `v5.1.0`
 * RISC-V GNU toolchain: `10.1.0`
 
-Make targets
-------------
-
-`make run-baremetal` -- build payload file and boot it via QEMU.
-
-Debugging with gdb
-------------------
-
-1. You will need to download toolchain from SiFive. Download GNU Embedded
-   Toolchain from [here][sifive-toolchain] and extract it to `~/some/path/`.
-2. Run as usual with and extra `DBG=1` argument, e.g. `make run-baremetal-user DBG=1`
-3. In a separate terminal, run `~/some/path/bin/riscv64-unknown-elf-gdb`
-4. When in gdb, attach with `target remote localhost:1234`
-
-RISC-V Linux in QEMU
-====================
-
-Run a RISC-V Linux system in Qemu. Based on instructions provided
-[here][riscv-qemu-docs] and [here][custom-kernel-tutorial].
-
-Documents the steps to build a Qemu locally, a custom Linux kernel, and Busybox
-tools, as well as an initrd image.
+## Running
+`./scripts/start.sh`
 
 As of this writing, these are the latest versions of the software involved:
 * Qemu: `v5.1.0`

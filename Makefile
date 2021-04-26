@@ -83,7 +83,7 @@ $(OUT)/test-output.txt: $(OUT)/test_virt
 
 .PHONY: run-baremetal
 run-baremetal: $(OUT)/user_sifive_u
-	$(QEMU) -nographic -machine sifive_u -bios none -kernel $<
+	$(QEMU) -nographic -machine sifive_u -smp 5 -bios none -kernel $<
 
 .PHONY: run-baremetal32
 run-baremetal32: $(OUT)/user_sifive_e32
